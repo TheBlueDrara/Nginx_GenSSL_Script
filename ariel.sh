@@ -68,7 +68,7 @@ while getopts "d:s:f:a:h" opt; do
                 exit 1
             fi
             IFS=":" read -r ssl_cert ssl_key <<< "$OPTARG"
-            if [[ -z "$ssl_crt" ]] || [[ -z "$ssl_key" ]]; then
+            if [[ -z "$ssl_cert" ]] || [[ -z "$ssl_key" ]]; then
                 echo :Syntax Error: -s "<path to cert_file>:<path to key_file>"
             fi
             ;;
@@ -96,8 +96,8 @@ while getopts "d:s:f:a:h" opt; do
 done
 
     #Making sure every parameter is passed down 
-    if [[ -z "$domain" ]] || [[ -z $htpasswd_url_path ]] || [[ -z $htpasswd_user ]] || [[ -z $htpasswd_password ]]; then
-        echo "Missing one of the required parameters: -d <domain_name> -a <url_path>:<username>:<password>"
+    if [[ -z "$domain" ]] || [[ -z $htpasswd_url_path ]] || [[ -z $htpasswd_user ]] || [[ -z $htpasswd_password ]] || [[ -z "$ssl_cert" ]] || [[ -z "$ssl_key" ]]; then
+        echo "Missing one of the required parameters: -d <domain_name> -a <url_path>:<username>:<password> <ssl_cert full path>:<ssl_key full path>"
         exit 1
     fi
     #Making sure that we dont ruin an existing config file
@@ -106,8 +106,8 @@ done
         exit 1
     fi
 
-    https_opts $domain $dfile $ssl_key $ssl_cert $rootdir $config_file
-    auth_opts $htpasswd_file $htpasswd_url_path $htpasswd_user $htpasswd_password $config_file
+    https_opts "$domain" "$dfile" "$ssl_key" "$ssl_cert" "$rootdir" "$config_file" "$rootdir" "$config_file"
+    auth_opts $htpasswd_file $htpasswd_url_path $htpasswd_user $htpasswd_password $config_file $rootdir
     create_link $config_file
     add_domain_to_hosts $domain
     restart_nginx
@@ -305,4 +305,4 @@ echo "[$timestamp] [$level] $message" >> $LOGFILE
 }
 
 
-main "@&"
+main "$@"
