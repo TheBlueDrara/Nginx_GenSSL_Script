@@ -1,0 +1,36 @@
+https_config='
+server {
+    listen 80;
+    server_name $odomain;
+    return 301 https://\$host\$request_uri;
+}
+server {
+    listen 443 ssl;
+    server_name $odomain;
+    root $oroot_dir;
+    index $ofile;
+
+    ssl_certificate     "$ossl_cert";
+    ssl_certificate_key "$ossl_key";
+    ssl_protocols       TLSv1.2 TLSv1.3;
+    ssl_ciphers         HIGH:!aNULL:!MD5;
+    ssl_prefer_server_ciphers on;
+    ssl_session_cache   shared:SSL:10m;
+    ssl_session_timeout 10m;
+
+    location / {
+        try_files \$uri \$uri/ =404;
+    }
+}
+'
+
+
+auth_config='
+location $oh_path{
+    auth_basic "Restricted Area";
+    auth_basic_user_file "$oh_file";
+    root $oh_root_path/$oh_path;
+    index index.html;
+
+}
+'
